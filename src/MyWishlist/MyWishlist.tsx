@@ -42,7 +42,7 @@ class MyWishlist extends Component<MyProps, state> {
         <MDBCardGroup>
           <MDBRow>
             {this.state.myMovies.map((movie, index) => (
-              <MDBCol md="3">
+              <MDBCol md="4">
                 <MDBCard testimonial>
                   <MDBCardImage
                     src={

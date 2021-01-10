@@ -41,28 +41,32 @@ class MovieSearch extends Component<MyProps, state> {
         .tokenAccess()
         .then((tokenResponse) => {
           this.setState({ request_token: tokenResponse.request_token });
+          localStorage.setItem("requestToken", tokenResponse.request_token);
           alert(
             "https://www.themoviedb.org/authenticate/" +
               tokenResponse.request_token
           );
           return tokenResponse;
         })
-        .then((tokenResponse) => {
-          api
-            .createSessions(tokenResponse.request_token)
-            .then((sessionResponse) => {
-              console.log("session", sessionResponse.success);
-              if (sessionResponse.success !== true) {
-                alert(
-                  "https://www.themoviedb.org/authenticate/" +
-                    tokenResponse.request_token
-                );
-              } else {
-                this.setState({ session_id: sessionResponse.session_id });
-                localStorage.setItem("session_id", this.state.session_id);
-              }
-            });
-        });
+        .then((tokenResponse) => {});
+    }
+  }
+
+  createSession() {
+    var getSessionId = localStorage.getItem("session_id") || "";
+    if (getSessionId == "") {
+      var requestToken = localStorage.getItem("requestToken") || "";
+      api.createSessions(requestToken).then((sessionResponse) => {
+        if (sessionResponse.success !== true) {
+          alert("https://www.themoviedb.org/authenticate/" + requestToken);
+        } else {
+          this.setState({ session_id: sessionResponse.session_id });
+          localStorage.setItem("session_id", this.state.session_id);
+          alert("Session Created");
+        }
+      });
+    } else {
+      alert("Session Open Already");
     }
   }
 
@@ -79,21 +83,32 @@ class MovieSearch extends Component<MyProps, state> {
 
   addFavorite(movieid: number) {
     var getSessionId = localStorage.getItem("session_id") || "";
-    api.PostFavorite(getSessionId, movieid).then((response) => {
-      console.log("addfavo", response);
-    });
+    if (getSessionId !== "") {
+      api.PostFavorite(getSessionId, movieid).then((response) => {
+        console.log("addfavo", response);
+      });
+    } else {
+      alert("Create session to add WishList");
+    }
   }
 
   addWishlist(movieid: number) {
     var getSessionId = localStorage.getItem("session_id") || "";
-    api.PostWishlist(getSessionId, movieid).then((response) => {
-      console.log("addWish", response);
-    });
+    if (getSessionId !== "") {
+      api.PostWishlist(getSessionId, movieid).then((response) => {
+        console.log("addWish", response);
+      });
+    } else {
+      alert("Create session to add WishList");
+    }
   }
 
   render() {
     return (
       <div>
+        <MDBBtn color="primary" onClick={() => this.createSession()}>
+          Create Session
+        </MDBBtn>
         <div
           style={{ textAlign: "center", color: "red", paddingBottom: "20px" }}
         >
